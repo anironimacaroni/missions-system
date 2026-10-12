@@ -34,7 +34,9 @@ export async function POST(req: Request) {
         let message = "הסוכן לא הצליח לענות כרגע. נסה שוב בעוד רגע.";
         if (status === 401) message = "מפתח ה-OpenAI נדחה. בדוק את OPENAI_API_KEY.";
         else if (status === 404) message = "המודל שהוגדר לא נמצא בחשבון OpenAI. בדוק את OPENAI_MODEL.";
-        else if (status === 429) message = "חריגה ממכסת השימוש ב-OpenAI. נסה שוב בעוד רגע.";
+        else if (status === 429 && (err as { type?: string }).type === "insufficient_quota")
+          message = "אזל הקרדיט בחשבון OpenAI. יש להוסיף קרדיט בהגדרות החיוב ב-platform.openai.com.";
+        else if (status === 429) message = "יותר מדי בקשות ל-OpenAI. נסה שוב בעוד רגע.";
         else if (err instanceof Error && /DATABASE_URL/.test(err.message)) message = "מסד הנתונים לא מוגדר.";
         emit({ type: "error", message });
       } finally {
